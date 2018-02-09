@@ -1,5 +1,5 @@
 <div class="wrap">
-    <h1>Statamic JSON Exporter</h1>
+    <h1>Statamic JSON Export</h1>
 
     <p>When you click the button below the plugin will export a JSON file that you can import to your Statamic application.</p>
 
