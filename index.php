@@ -19,5 +19,25 @@ function statamic_json_export_view() {
     // Query all the authors of the said posts.
     require_once __DIR__ . '/form.php';
 }
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    return;
+}
+
+add_action( 'init', 'statamic_json_export_run' );
+
+function statamic_json_export_run() {
+    if ( ! current_user_can('export') ) {
+        wp_die( 'You do not have sufficient permissions to export the content of this site.' );
+    }
+
+    require_once __DIR__ . '/Exporter.php';
+
+    (new Statamic\Exporter)
+        ->content($_POST['content'])
+        ->export()
+        ->download();
+}
+
 ?>
 

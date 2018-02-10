@@ -7,25 +7,24 @@
 
     <h2>Choose what to export</h2>
 
-    <form method="POST" action="<?php echo get_site_url(); ?>/wp-content/plugins/wordpress-exporter/export.php">
-
+    <form method="POST">
         <fieldset>
             <input type="hidden" name="pathname" value="<?php echo get_home_path(); ?>">
 
             <p>
-                <label><input type="checkbox" name="post" value="post">Post</label>
+                <label><input type="checkbox" name="content[]" value="posts">Posts</label>
             </p>
 
             <p>
-                <label><input type="checkbox" name="page" value="page">Page</label>
+                <label><input type="checkbox" name="content[]" value="pages">Pages</label>
             </p>
 
             <p>
-                <label><input type="checkbox" name="settings" value="settings">Settings</label>
+                <label><input type="checkbox" name="content[]" value="settings">Settings</label>
             </p>
 
             <p>
-                <label><input type="checkbox" name="taxonomies" value="taxonomies">Taxonomies</label>
+                <label><input type="checkbox" name="content[]" value="taxonomies">Taxonomies</label>
             </p>
         </fieldset>
 
