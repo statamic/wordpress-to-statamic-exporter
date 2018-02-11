@@ -10,21 +10,6 @@
 
 add_action( 'admin_menu', 'statamic_json_export_register_menu' );
 
-function statamic_map_with_keys($array, $callable)
-{
-    return array_reduce(
-        $array,
-        function ($collection, $item) use ($callable) {
-            $result = $callable($item);
-
-            $collection[key($result)] = reset($result);
-
-            return $collection;
-        },
-        array()
-    );
-}
-
 function statamic_request_input($key, $default = null)
 {
     if (! isset($_POST[$key])) {

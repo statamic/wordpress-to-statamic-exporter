@@ -6,18 +6,17 @@ class Exporter
 {
     const PREFIX = 'statamic-json';
 
-    protected $content   = array();
-
     protected $filename;
-
     protected $file;
+    protected $collections = array();
+    protected $pages       = array();
+    protected $settings    = array();
+    protected $taxonomies  = array();
 
     public function __construct()
     {
-        $timestamp = date('Ymd_His');
-
-        $this->filename  = 'statamic_' . date('Ymd_His') . '.json';
-        $this->file = ABSPATH . '/' . static::PREFIX . '/' . $this->filename;
+        $this->filename = 'statamic_' . date('Ymd_His') . '.json';
+        $this->file     = ABSPATH . '/' . static::PREFIX . '/' . $this->filename;
     }
 
     public function content($types)
@@ -54,46 +53,25 @@ class Exporter
         ));
 
         foreach ($posts as $post) {
-            $metadata = get_metadata('post', $post->ID);
-
-            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['order']           = date("Y-m-d",strtotime($post->post_date));
-            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data']['title']   = $post->post_title;
-            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data']['content'] = $post->post_content;
-
-            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['categories'] = array_map(function ($category) {
+            $this->collections[$slug]['categories'] = array_map(function ($category) {
                 return $category->slug;
             }, get_the_category($post->ID));
 
+            $this->collections[$slug]["/{$slug}/" . $post->post_name] = array(
+                'order' => date("Y-m-d", strtotime($post->post_date)),
+                'data'  => array(
+                    'title'   => $post->post_title,
+                    'content' => $post->post_content,
+                ),
+                'categories' => array_map(function ($category) {
+                    return $category->slug;
+                }, get_the_category($post->ID)),
+            );
 
-            if (! $metadata) {
-                continue;
-            }
-
-            foreach ($metadata as $i => $meta) {
-                $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data'][$i] = $meta[0];
+            foreach ($this->metadata('post', $post) as $key => $meta) {
+                $this->collections[$slug]["/{$slug}/" . $post->post_name]['data'][$key] = reset($meta);
             }
         }
-    }
-
-    private function setTaxonomies()
-    {
-        $categories = get_categories(array('hide_empty' => false));
-        $tags       = get_tags(array('hide_empty' => false));
-
-        $this->content['taxonomies']['categories'] = statamic_map_with_keys($categories, function ($category) {
-            return array($category->slug => array('title' => $category->name));
-        });
-
-        $this->content['taxonomies']['tags'] = statamic_map_with_keys($tags, function ($tag) {
-            return array($tag->slug => array('title' => $tag->name));
-        });
-    }
-
-    private function setSettings()
-    {
-        $this->content['settings']['site_url']  = get_option( 'siteurl' );
-        $this->content['settings']['site_name'] = get_bloginfo('name');
-        $this->content['settings']['timezone']  = ini_get('date.timezone');
     }
 
     private function setPages()
@@ -104,21 +82,40 @@ class Exporter
             'posts_per_page' => -1
         ));
 
-        foreach ($pages as $key => $page) {
-            $metadata = get_metadata('page', $page->ID);
+        foreach ($pages as $page) {
+            $this->pages['/' . $page->post_name] = array(
+                'order' => $page->menu_order,
+                'data'  => array(
+                    'title'        => $page->post_title,
+                    'post_content' => $page->post_content,
+                ),
+            );
 
-            $this->content['pages']['/' . $page->post_name]['order']           = $page->menu_order;
-            $this->content['pages']['/' . $page->post_name]['data']['title']   = $page->post_title;
-            $this->content['pages']['/' . $page->post_name]['data']['content'] = $page->post_content;
-
-            if (! $metadata) {
-                continue;
-            }
-
-            foreach ($metadata as $subkey => $subpage) {
-                $this->content['pages'][$page->post_name]['data'][$subkey] = $subpage[0];
+            foreach ($this->metadata('page', $page) as $key => $meta) {
+                $this->pages[$page->post_name]['data'][$key] = reset($meta);
             }
         }
+    }
+
+    private function setTaxonomies()
+    {
+        $categories = get_categories(array('hide_empty' => false));
+        $tags       = get_tags(array('hide_empty' => false));
+
+        $this->taxonomies['categories'] = $this->mapWithKeys($categories, function ($category) {
+            return array($category->slug => array('title' => $category->name));
+        });
+
+        $this->taxonomies['tags'] = $this->mapWithKeys($tags, function ($tag) {
+            return array($tag->slug => array('title' => $tag->name));
+        });
+    }
+
+    private function setSettings()
+    {
+        $this->settings['site_url']  = get_option( 'siteurl' );
+        $this->settings['site_name'] = get_bloginfo('name');
+        $this->settings['timezone']  = ini_get('date.timezone');
     }
 
     public function export()
@@ -127,7 +124,12 @@ class Exporter
 
         $handle = fopen($this->file, 'w') or die('fail');
 
-        fwrite($handle, json_encode($this->content, JSON_PRETTY_PRINT));
+        fwrite($handle, json_encode([
+            'collections' => $this->collections,
+            'pages'       => $this->pages,
+            'taxonomies'  => $this->taxonomies,
+            'settings'    => $this->settings,
+        ], JSON_PRETTY_PRINT));
 
         return $this;
     }
@@ -154,5 +156,29 @@ class Exporter
         }
 
         mkdir(ABSPATH . static::PREFIX, 0777, true);
+    }
+
+    private function metadata($type, $post)
+    {
+        if (! $metadata = get_metadata($type, $post->ID)) {
+            return array();
+        }
+
+        return $metadata;
+    }
+
+    private function mapWithKeys($array, $callable)
+    {
+        return array_reduce(
+            $array,
+            function ($collection, $item) use ($callable) {
+                $result = $callable($item);
+
+                $collection[key($result)] = reset($result);
+
+                return $collection;
+            },
+            array()
+        );
     }
 }
