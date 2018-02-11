@@ -26,6 +26,15 @@
             <p>
                 <label><input type="checkbox" name="content[]" value="taxonomies">Taxonomies</label>
             </p>
+
+            <?php foreach($postTypes as $postType): ?>
+                <p>
+                    <label>
+                        <input type="checkbox" name="post_types[]" value="<?php echo $postType->name; ?>">
+                        <?php echo $postType->label; ?>
+                    </label>
+                </p>
+            <?php endforeach; ?>
         </fieldset>
 
 

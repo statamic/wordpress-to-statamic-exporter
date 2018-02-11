@@ -10,12 +10,25 @@
 
 add_action( 'admin_menu', 'statamic_json_export_register_menu' );
 
+function statamic_request_input($key, $default = null)
+{
+    if (! isset($_POST[$key])) {
+        return $default;
+    }
+
+    return $_POST[$key];
+}
+
 function statamic_json_export_register_menu() {
     add_submenu_page( 'tools.php', 'Export Statamic JSON', 'Export Statamic JSON', 'manage_options', 'export-statamic-json', 'statamic_json_export_view' );
 }
 
 function statamic_json_export_view() {
     // Query all the custom post types.
+    $postTypes = get_post_types([
+        '_builtin' => false,
+    ], 'object');
+
     // Query all the authors of the said posts.
     require_once __DIR__ . '/form.php';
 }
@@ -24,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     return;
 }
 
-add_action( 'init', 'statamic_json_export_run' );
+add_action( 'admin_init', 'statamic_json_export_run' );
 
 function statamic_json_export_run() {
     if ( ! current_user_can('export') ) {
@@ -34,7 +47,8 @@ function statamic_json_export_run() {
     require_once __DIR__ . '/Exporter.php';
 
     (new Statamic\Exporter)
-        ->content($_POST['content'])
+        ->content(statamic_request_input('content', array()))
+        ->customPostTypes(statamic_request_input('post_types', array()))
         ->export()
         ->download();
 }

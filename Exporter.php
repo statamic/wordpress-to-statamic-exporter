@@ -29,10 +29,26 @@ class Exporter
         return $this;
     }
 
-    private function setPosts()
+    public function customPostTypes($postTypes)
     {
+        array_walk($postTypes, function ($type) {
+            $this->setPosts($type);
+        });
+
+        return $this;
+    }
+
+    private function setPosts($type = 'post')
+    {
+        $postType = get_post_type_object($type);
+        $slug     = $postType->name;
+
+        if ($postType->rewrite) {
+            $slug = $postType->rewrite['slug'];
+        }
+
         $posts = get_posts(array(
-            'post_type'      => 'post',
+            'post_type'      => $postType->name,
             'post_status'    => 'publish',
             'posts_per_page' => -1
         ));
@@ -40,16 +56,16 @@ class Exporter
         foreach ($posts as $post) {
             $metadata = get_metadata('post', $post->ID);
 
-            $this->content['collections']['posts']['/posts/' . $post->post_name]['order']           = date("Y-m-d",strtotime($post->post_date));
-            $this->content['collections']['posts']['/posts/' . $post->post_name]['data']['title']   = $post->post_title;
-            $this->content['collections']['posts']['/posts/' . $post->post_name]['data']['content'] = $post->post_content;
+            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['order']           = date("Y-m-d",strtotime($post->post_date));
+            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data']['title']   = $post->post_title;
+            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data']['content'] = $post->post_content;
 
             if (! $metadata) {
                 continue;
             }
 
             foreach ($metadata as $i => $meta) {
-                $this->content['collections']['posts']['/posts/' . $post->post_name]['data'][$i] = $meta[0];
+                $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data'][$i] = $meta[0];
             }
         }
     }
