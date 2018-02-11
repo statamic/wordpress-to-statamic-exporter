@@ -77,27 +77,16 @@ class Exporter
 
     private function setTaxonomies()
     {
-        $this->content['taxonomies']['categories'] = array_reduce(
-            get_categories(array('hide_empty' => 0)),
-            function ($categories, $category) {
-                $categories[$category->slug] = [
-                    'title' => $category->name,
-                ];
+        $categories = get_categories(array('hide_empty' => false));
+        $tags       = get_tags(array('hide_empty' => false));
 
-                return $categories;
-            },
-            array()
-        );
+        $this->content['taxonomies']['categories'] = statamic_map_with_keys($categories, function ($category) {
+            return array($category->slug => array('title' => $category->name));
+        });
 
-        $this->content['taxonomies']['tags'] = array_reduce(
-            get_tags(array('hide_empty' => 0)),
-            function ($tags, $tag) {
-                $tags[$tag->slug] = $tag->name;
-
-                return $tags;
-            },
-            array()
-        );
+        $this->content['taxonomies']['tags'] = statamic_map_with_keys($tags, function ($tag) {
+            return array($tag->slug => array('title' => $tag->name));
+        });
     }
 
     private function setSettings()
