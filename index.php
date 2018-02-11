@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Statamic JSON Export
  * Description: Export all the Wordpress data to be imported into Statamic.
- * Version:     1.0
+ * Version:     0.1.0
  * Author:      Statamic
  * Author URI:  https://statamic.com
  */

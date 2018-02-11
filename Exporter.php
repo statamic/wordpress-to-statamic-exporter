@@ -60,6 +60,11 @@ class Exporter
             $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data']['title']   = $post->post_title;
             $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['data']['content'] = $post->post_content;
 
+            $this->content['collections'][$slug]["/{$slug}/" . $post->post_name]['categories'] = array_map(function ($category) {
+                return $category->slug;
+            }, get_the_category($post->ID));
+
+
             if (! $metadata) {
                 continue;
             }
