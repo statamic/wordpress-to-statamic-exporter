@@ -55,10 +55,6 @@ class Exporter
         foreach ($posts as $post) {
             $author = null;
 
-            $this->collections[$slug]['categories'] = array_map(function ($category) {
-                return $category->slug;
-            }, get_the_category($post->ID));
-
             if ($post->post_author) {
                 $author = get_userdata($post->post_author)->user_login;
             }
@@ -125,18 +121,36 @@ class Exporter
         $this->settings['timezone']  = ini_get('date.timezone');
     }
 
+    private function json()
+    {
+        $content = array();
+
+        if (! empty($this->collections)) {
+            $content['collections'] = $this->collections;
+        }
+
+        if (! empty($this->pages)) {
+            $content['pages'] = $this->pages;
+        }
+
+        if (! empty($this->taxonomies)) {
+            $content['taxonomies'] = $this->taxonomies;
+        }
+
+        if (! empty($this->settings)) {
+            $content['settings'] = $this->settings;
+        }
+
+        return json_encode($content, JSON_PRETTY_PRINT);
+    }
+
     public function export()
     {
         $this->createExportDirectory();
 
         $handle = fopen($this->file, 'w') or die('fail');
 
-        fwrite($handle, json_encode([
-            'collections' => $this->collections,
-            'pages'       => $this->pages,
-            'taxonomies'  => $this->taxonomies,
-            'settings'    => $this->settings,
-        ], JSON_PRETTY_PRINT));
+        fwrite($handle, $this->json());
 
         return $this;
     }
