@@ -1,1 +1,1 @@
-# Wordpress to Statamic Exporter
+# Export to Statamic Wordpress Plugin
