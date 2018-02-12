@@ -53,15 +53,22 @@ class Exporter
         ));
 
         foreach ($posts as $post) {
+            $author = null;
+
             $this->collections[$slug]['categories'] = array_map(function ($category) {
                 return $category->slug;
             }, get_the_category($post->ID));
+
+            if ($post->post_author) {
+                $author = get_userdata($post->post_author)->user_login;
+            }
 
             $this->collections[$slug]["/{$slug}/" . $post->post_name] = array(
                 'order' => date("Y-m-d", strtotime($post->post_date)),
                 'data'  => array(
                     'title'   => $post->post_title,
                     'content' => $post->post_content,
+                    'author'  => $author,
                 ),
                 'categories' => array_map(function ($category) {
                     return $category->slug;
