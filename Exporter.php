@@ -166,8 +166,6 @@ class Exporter
         flush();
 
         readfile($this->file);
-
-        exit; // We have to exit to avoid adding the markup to the file.
     }
 
     private function createExportDirectory()

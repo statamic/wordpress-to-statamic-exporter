@@ -7,9 +7,9 @@
 
     <h2>Choose what to export</h2>
 
-    <form method="POST">
+    <form method="POST" action="<?php echo admin_url( 'admin-post.php' ); ?>">
         <fieldset>
-            <input type="hidden" name="pathname" value="<?php echo get_home_path(); ?>">
+            <input type="hidden" name="action" value="statamic_export_run">
 
             <p>
                 <label><input type="checkbox" name="content[]" value="posts">Posts</label>

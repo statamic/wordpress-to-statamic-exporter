@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: Export to Statamic.
+ * Plugin Name: Export to Statamic
  * Description: Export all the Wordpress data to be imported into Statamic.
  * Version:     0.1.0
  * Author:      Statamic
@@ -33,13 +33,12 @@ function statamic_export_view() {
     require_once __DIR__ . '/form.php';
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    return;
-}
+add_action(
+    'admin_post_statamic_export_run',
+    'statamic_export_run_admin_action'
+);
 
-add_action( 'admin_init', 'statamic_export_run' );
-
-function statamic_export_run() {
+function statamic_export_run_admin_action() {
     if ( ! current_user_can('export') ) {
         wp_die( 'You do not have sufficient permissions to export the content of this site.' );
     }
@@ -51,6 +50,8 @@ function statamic_export_run() {
         ->customPostTypes(statamic_request_input('post_types', array()))
         ->export()
         ->download();
+
+    exit;
 }
 
 ?>
