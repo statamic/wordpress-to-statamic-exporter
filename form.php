@@ -1,11 +1,11 @@
 <div class="wrap">
     <h1>Export to Statamic</h1>
 
-    <p>When you click the button below the plugin will export a JSON file that you can import to your Statamic application.</p>
+    <p>Choose what data you would like to export to a Statamic JSON import file.</p>
 
-    <p>Once you’ve saved the download file, you can enjoy the flat file goodness.</p>
+    <p>Learn more about <a href="https://docs.statamic.com/importer" target="_blank">Statamic's Importer</a>.</p>
 
-    <h2>Choose what to export</h2>
+    <h2>Customize your export</h2>
 
     <form method="POST" action="<?php echo admin_url( 'admin-post.php' ); ?>">
         <fieldset>
