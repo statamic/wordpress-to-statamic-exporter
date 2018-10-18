@@ -63,7 +63,7 @@ class Exporter
                 'order' => date("Y-m-d", strtotime($post->post_date)),
                 'data'  => array(
                     'title'   => $post->post_title,
-                    'content' => $post->post_content,
+                    'content' => wpautop($post->post_content),
                     'author'  => $author,
                 ),
                 'categories' => array_map(function ($category) {
