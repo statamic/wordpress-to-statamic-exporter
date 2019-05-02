@@ -90,7 +90,7 @@ class Exporter
                 'order' => $page->menu_order,
                 'data'  => array(
                     'title'        => $page->post_title,
-                    'post_content' => $page->post_content,
+                    'content'      => $page->post_content,
                 ),
             );
 
