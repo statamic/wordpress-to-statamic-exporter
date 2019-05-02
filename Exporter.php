@@ -66,9 +66,8 @@ class Exporter
                     'content' => wpautop($post->post_content),
                     'author'  => $author,
                 ),
-                'categories' => array_map(function ($category) {
-                    return $category->slug;
-                }, get_the_category($post->ID)),
+                'categories' => wp_list_pluck(get_the_category($post->ID), 'slug'),
+                'tags'       => wp_list_pluck(get_the_tags($post->ID), 'slug'),
             );
 
             foreach ($this->metadata('post', $post) as $key => $meta) {
