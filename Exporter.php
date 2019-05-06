@@ -93,8 +93,8 @@ class Exporter
                 ),
             );
 
-            foreach ($this->metadata('page', $page) as $key => $meta) {
-                $this->pages[$page->post_name]['data'][$key] = reset($meta);
+            foreach ($this->metadata('post', $page) as $key => $meta) {
+                $this->pages['/' . $page->post_name]['data'][$key] = reset($meta);
             }
         }
     }
