@@ -15,8 +15,10 @@ class Exporter
 
     public function __construct()
     {
-        $this->filename = 'statamic_' . date('Ymd_His') . '.json';
-        $this->file     = ABSPATH . '/' . static::PREFIX . '/' . $this->filename;
+        $this->upload_dir = wp_upload_dir();
+        $this->filename   = 'statamic_' . date('Ymd_His') . '.json';
+        $this->directory  = trailingslashit( $this->upload_dir['basedir'] ) . trailingslashit( static::PREFIX );
+        $this->file       = $this->directory . $this->filename;
     }
 
     public function content($types)
@@ -169,11 +171,11 @@ class Exporter
 
     private function createExportDirectory()
     {
-        if (file_exists(ABSPATH . static::PREFIX)) {
+        if (file_exists( $this->directory )) {
             return;
         }
 
-        mkdir(ABSPATH . static::PREFIX, 0777, true);
+        mkdir( $this->directory, 0777, true );
     }
 
     private function metadata($type, $post)
