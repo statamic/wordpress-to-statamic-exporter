@@ -182,6 +182,10 @@ class Exporter
             return array();
         }
 
+        if ($featuredImageUrl = get_the_post_thumbnail_url($post->ID)) {
+            $metadata['featured_image_url'] = [$featuredImageUrl];
+        }
+
         return $metadata;
     }
 
