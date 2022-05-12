@@ -62,11 +62,13 @@ class Exporter
             $this->collections[$slug]["/{$slug}/" . $post->post_name] = array(
                 'order' => date("Y-m-d", strtotime($post->post_date)),
                 'data'  => array(
+		    'id' => $post->ID,
                     'title'   => $post->post_title,
                     'content' => wpautop($post->post_content),
                     'author'  => $author,
                     'categories' => wp_list_pluck(get_the_category($post->ID), 'slug'),
                     'tags'       => wp_list_pluck(get_the_tags($post->ID), 'slug'),
+                    'image'   => wp_get_attachment_url( get_post_thumbnail_id($post->ID) )
                 ),
             );
 
